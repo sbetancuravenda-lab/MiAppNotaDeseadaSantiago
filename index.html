@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Nota Deseada</title>
+    <style>
+        /* Estilos generales */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        /* Menú lateral */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s;
+            box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        
+        .logo {
+            text-align: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .logo h2 {
+            font-size: 1.5rem;
+            color: #3498db;
+        }
+        
+        .logo p {
+            font-size: 0.85rem;
+            color: #bdc3c7;
+            margin-top: 5px;
+        }
+        
+        .menu {
+            list-style: none;
+        }
+        
+        .menu li {
+            margin-bottom: 5px;
+        }
+        
+        .menu li a {
+            display: block;
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 15px 25px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+        
+        .menu li a:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left-color: #3498db;
+            color: #3498db;
+        }
+        
+        .menu li.active a {
+            background-color: rgba(52, 152, 219, 0.2);
+            border-left-color: #3498db;
+            color: #3498db;
+        }
+        
+        .menu-icon {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        
+        header h1 {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            max-width: 800px;
+        }
+        
+        /* Secciones */
+        .section {
+            display: none;
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            font-size: 1.8rem;
+        }
+        
+        /* Formulario de cálculo */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .form-col {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .input-with-info {
+            position: relative;
+        }
+        
+        .input-info {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="number"]:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-calculate {
+            display: block;
+            margin: 30px auto;
+            min-width: 200px;
+        }
+        
+        /* Resultado */
+        .result-container {
+            margin-top: 40px;
+            text-align: center;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .result-title {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .result-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 15px 0;
+        }
+        
+        .result-value.high {
+            color: #27ae60;
+        }
+        
+        .result-value.medium {
+            color: #f39c12;
+        }
+        
+        .result-value.low {
+            color: #e74c3c;
+        }
+        
+        .result-formula {
+            color: #7f8c8d;
+            font-style: italic;
+            margin-top: 20px;
+            font-size: 0.95rem;
+        }
+        
+        /* Información */
+        .info-box {
+            background-color: #e8f4fc;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .info-box h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #5a6c7d;
+            line-height: 1.6;
+        }
+        
+        .formula-box {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 25px 0;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #e1e8ed;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 10px 0;
+            }
+            
+            .menu {
+                display: flex;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }
+            
+            .menu li {
+                margin: 5px;
+            }
+            
+            .menu li a {
+                padding: 10px 15px;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+            }
+            
+            .menu li a:hover,
+            .menu li.active a {
+                border-left: none;
+                border-bottom-color: #3498db;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+        
+        /* Botón de menú móvil */
+        .menu-toggle {
+            display: none;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .sidebar {
+                position: fixed;
+                height: 100vh;
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón para menú móvil -->
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    
+    <!-- Menú lateral -->
+    <nav class="sidebar" id="sidebar">
+        <div class="logo">
+            <h2>Calculadora de Notas</h2>
+            <p>Universidad XYZ</p>
+        </div>
+        <ul class="menu">
+            <li class="active"><a href="#calculator"><span class="menu-icon">📊</span> Calculadora</a></li>
+            <li><a href="#info"><span class="menu-icon">ℹ️</span> Información</a></li>
+            <li><a href="#formula"><span class="menu-icon">📝</span> Fórmula</a></li>
+            <li><a href="#about"><span class="menu-icon">👨‍🎓</span> Acerca de</a></li>
+        </ul>
+    </nav>
+    
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <header>
+            <h1>Calculadora de Nota Deseada</h1>
+            <p>Calcula la nota que necesitas en el último parcial para alcanzar la calificación deseada, basándote en tus notas actuales de quizzes y parciales.</p>
+        </header>
+        
+        <!-- Sección Calculadora -->
+        <section id="calculator" class="section active">
+            <h2 class="section-title">Calculadora</h2>
+            
+            <div class="info-box">
+                <h3>Instrucciones</h3>
+                <p>Introduce las notas de tus quizzes y parciales en las casillas correspondientes. La calculadora determinará la nota que necesitas en el cuarto parcial para alcanzar una calificación final de 3.0.</p>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="q1">Quiz 1 (5%)</label>
+                        <div class="input-with-info">
+                            <input type="number" id="q1" min="0" max="5" step="0.1" placeholder="Ej: 4.2">
+                            <span class="input-info">/ 5.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="p1">Parcial 1 (20%)</label>
+                        <div class="input-with-info">
+                            <input type="number" id="p1" min="0" max="5" step="0.1" placeholder="Ej: 3.8">
+                            <span class="input-info">/ 5.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="q2">Quiz 2 (5%)</label>
+                        <div class="input-with-info">
+                            <input type="number" id="q2" min="0" max="5" step="0.1" placeholder="Ej: 4.5">
+                            <span class="input-info">/ 5.0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="p2">Parcial 2 (20%)</label>
+                        <div class="input-with-info">
+                            <input type="number" id="p2" min="0" max="5" step="0.1" placeholder="Ej: 4.0">
+                            <span class="input-info">/ 5.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="q3">Quiz 3 (5%)</label>
+                        <div class="input-with-info">
+                            <input type="number" id="q3" min="0" max="5" step="0.1" placeholder="Ej: 3.9">
+                            <span class="input-info">/ 5.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="p3">Parcial 3 (20%)</label>
+                        <div class="input-with-info">
+                            <input type="number" id="p3" min="0" max="5" step="0.1" placeholder="Ej: 3.5">
+                            <span class="input-info">/ 5.0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="q4">Quiz 4 (5%)</label>
+                        <div class="input-with-info">
+                            <input type="number" id="q4" min="0" max="5" step="0.1" placeholder="Ej: 4.1">
+                            <span class="input-info">/ 5.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="desired-grade">Nota deseada final</label>
+                        <div class="input-with-info">
+                            <input type="number" id="desired-grade" min="0" max="5" step="0.1" value="3.0">
+                            <span class="input-info">/ 5.0</span>
+                        </div>
+                        <small style="color: #7f8c8d;">Puedes cambiar esta nota si deseas otro objetivo</small>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn btn-calculate" id="calculateBtn">Calcular Nota Necesaria</button>
+            
+            <div id="result" class="result-container" style="display: none;">
+                <h3 class="result-title">Nota necesaria en el cuarto parcial:</h3>
+                <div id="resultValue" class="result-value">0.000</div>
+                <p id="resultMessage">Para alcanzar una nota final de <span id="targetGrade">3.0</span></p>
+                <p class="result-formula" id="formulaDisplay">Fórmula aplicada: X = (3 - (Q1+Q2+Q3+Q4)*0.05 - (P1+P2+P3)*0.20) / 0.20</p>
+            </div>
+        </section>
+        
+        <!-- Sección Información -->
+        <section id="info" class="section">
+            <h2 class="section-title">Información</h2>
+            
+            <div class="info-box">
+                <h3>¿Cómo funciona esta calculadora?</h3>
+                <p>Esta herramienta te permite determinar la nota que necesitas obtener en el cuarto parcial para alcanzar una calificación final específica (por defecto 3.0), considerando las notas que ya has obtenido en los quizzes y parciales anteriores.</p>
+            </div>
+            
+            <div class="info-box">
+                <h3>Distribución de porcentajes</h3>
+                <p>El cálculo se basa en la siguiente distribución de porcentajes:</p>
+                <ul style="margin-left: 20px; margin-top: 10px; color: #5a6c7d; line-height: 1.6;">
+                    <li>Quizzes (4 en total): 5% cada uno (20% en total)</li>
+                    <li>Parciales (4 en total): 20% cada uno (80% en total)</li>
+                </ul>
+                <p style="margin-top: 10px;">Nota: La calculadora asume que todos los quizzes y parciales se califican sobre 5.0.</p>
+            </div>
+            
+            <div class="info-box">
+                <h3>Interpretación de resultados</h3>
+                <p>El resultado te indica la nota mínima que necesitas en el cuarto parcial para alcanzar tu objetivo:</p>
+                <ul style="margin-left: 20px; margin-top: 10px; color: #5a6c7d; line-height: 1.6;">
+                    <li><strong>Menos de 5.0</strong>: Es posible alcanzar tu objetivo con un buen desempeño</li>
+                    <li><strong>Exactamente 5.0</strong>: Necesitas la máxima calificación</li>
+                    <li><strong>Más de 5.0</strong>: Tu objetivo no es alcanzable, necesitarías ajustar tu meta</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Sección Fórmula -->
+        <section id="formula" class="section">
+            <h2 class="section-title">Fórmula de Cálculo</h2>
+            
+            <div class="info-box">
+                <h3>Explicación de la fórmula</h3>
+                <p>La calculadora utiliza la siguiente fórmula para determinar la nota necesaria en el cuarto parcial:</p>
+            </div>
+            
+            <div class="formula-box">
+                <p>Xn = N - (Q1 + Q2 + Q3 + Q4) × 0.05 - (P1 + P2 + P3) × 0.20</p>
+                <p>Xd = 0.20</p>
+                <p>X = Xn ÷ Xd</p>
+            </div>
+            
+            <div class="info-box">
+                <h3>Variables</h3>
+                <ul style="margin-left: 20px; color: #5a6c7d; line-height: 1.8;">
+                    <li><strong>N</strong>: Nota final deseada (por defecto 3.0)</li>
+                    <li><strong>Q1, Q2, Q3, Q4</strong>: Notas de los quizzes (cada uno vale 5%)</li>
+                    <li><strong>P1, P2, P3</strong>: Notas de los parciales 1, 2 y 3 (cada uno vale 20%)</li>
+                    <li><strong>X</strong>: Nota necesaria en el cuarto parcial (resultado)</li>
+                </ul>
+            </div>
+            
+            <div class="info-box">
+                <h3>Ejemplo de cálculo</h3>
+                <p>Supongamos las siguientes notas:</p>
+                <ul style="margin-left: 20px; color: #5a6c7d; line-height: 1.8;">
+                    <li>Quizzes: 4.0, 4.2, 3.8, 4.5</li>
+                    <li>Parciales 1-3: 3.5, 4.0, 3.8</li>
+                    <li>Nota deseada: 3.0</li>
+                </ul>
+                <p style="margin-top: 10px;">Cálculo:</p>
+                <div class="formula-box">
+                    <p>Xn = 3.0 - (4.0+4.2+3.8+4.5)×0.05 - (3.5+4.0+3.8)×0.20</p>
+                    <p>Xn = 3.0 - 16.5×0.05 - 11.3×0.20</p>
+                    <p>Xn = 3.0 - 0.825 - 2.26</p>
+                    <p>Xn = -0.085</p>
+                    <p>X = -0.085 ÷ 0.20 = -0.425</p>
+                </div>
+                <p>En este caso, el resultado negativo indica que ya superas la nota objetivo incluso sin presentar el cuarto parcial.</p>
+            </div>
+        </section>
+        
+        <!-- Sección Acerca de -->
+        <section id="about" class="section">
+            <h2 class="section-title">Acerca de</h2>
+            
+            <div class="info-box">
+                <h3>Origen de la calculadora</h3>
+                <p>Esta herramienta está basada en el código Python proporcionado, que calcula la nota necesaria en el cuarto parcial para alcanzar una calificación final de 3.0, considerando las notas obtenidas en evaluaciones previas.</p>
+            </div>
+            
+            <div class="info-box">
+                <h3>Código original en Python</h3>
+                <div class="formula-box">
+                    <p>print("========Nota deseada========")</p>
+                    <p>Q1=float(input("Ingresa la nota del primer quiz: "))</p>
+                    <p>P1=float(input("Ingresa la nota del primer parcial: "))</p>
+                    <p>Q2=float(input("Ingresa la nota del segundo quiz: "))</p>
+                    <p>P2=float(input("Ingresa la nota del segundo parcial: "))</p>
+                    <p>Q3=float(input("Ingresa la nota del tercer quiz: "))</p>
+                    <p>P3=float(input("Ingresa la nota del tercer parcial: "))</p>
+                    <p>Q4=float(input("Ingresa la nota del cuarto quiz: "))</p>
+                    <p>Xn= 3-(Q1+Q2+Q3+Q4)*0.05 - (P1+P2+P3)*0.20</p>
+                    <p>Xd= 0.20</p>
+                    <p>X= Xn/Xd</p>
+                    <p>print(f"La nota deseada es: {X:.3}")</p>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h3>Características de la implementación web</h3>
+                <p>Esta versión web incluye:</p>
+                <ul style="margin-left: 20px; color: #5a6c7d; line-height: 1.6;">
+                    <li>Interfaz gráfica amigable con menú lateral</li>
+                    <li>Validación de entradas</li>
+                    <li>Cálculo instantáneo</li>
+                    <li>Visualización clara del resultado</li>
+                    <li>Explicación detallada de la fórmula</li>
+                    <li>Diseño responsivo para dispositivos móviles</li>
+                    <li>Posibilidad de cambiar la nota objetivo</li>
+                </ul>
+            </div>
+            
+            <div class="info-box">
+                <h3>Uso educativo</h3>
+                <p>Esta herramienta está diseñada con fines educativos para ayudar a los estudiantes a planificar su desempeño académico y entender cómo se calculan las notas finales en función de los porcentajes asignados a cada evaluación.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Elementos del DOM
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const menuItems = document.querySelectorAll('.menu li a');
+        const sections = document.querySelectorAll('.section');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resultContainer = document.getElementById('result');
+        const resultValue = document.getElementById('resultValue');
+        const targetGradeElement = document.getElementById('targetGrade');
+        const formulaDisplay = document.getElementById('formulaDisplay');
+        const resultMessage = document.getElementById('resultMessage');
+        
+        // Datos de entrada
+        const inputs = {
+            q1: document.getElementById('q1'),
+            p1: document.getElementById('p1'),
+            q2: document.getElementById('q2'),
+            p2: document.getElementById('p2'),
+            q3: document.getElementById('q3'),
+            p3: document.getElementById('p3'),
+            q4: document.getElementById('q4'),
+            desiredGrade: document.getElementById('desired-grade')
+        };
+        
+        // Navegación del menú
+        menuItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Obtener el ID de la sección objetivo
+                const targetId = this.getAttribute('href').substring(1);
+                
+                // Actualizar menú activo
+                menuItems.forEach(link => {
+                    link.parentElement.classList.remove('active');
+                });
+                this.parentElement.classList.add('active');
+                
+                // Mostrar sección correspondiente
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    }
+                });
+                
+                // En dispositivos móviles, cerrar el menú después de seleccionar
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        });
+        
+        // Toggle del menú en móviles
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+        
+        // Cerrar menú al hacer clic fuera en móviles
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                e.target !== menuToggle) {
+                sidebar.classList.remove('active');
+            }
+        });
+        
+        // Función para calcular la nota necesaria
+        function calculateRequiredGrade() {
+            // Obtener valores de entrada
+            const q1 = parseFloat(inputs.q1.value) || 0;
+            const p1 = parseFloat(inputs.p1.value) || 0;
+            const q2 = parseFloat(inputs.q2.value) || 0;
+            const p2 = parseFloat(inputs.p2.value) || 0;
+            const q3 = parseFloat(inputs.q3.value) || 0;
+            const p3 = parseFloat(inputs.p3.value) || 0;
+            const q4 = parseFloat(inputs.q4.value) || 0;
+            const desiredGrade = parseFloat(inputs.desiredGrade.value) || 3.0;
+            
+            // Calcular según la fórmula original
+            const Xn = desiredGrade - (q1 + q2 + q3 + q4) * 0.05 - (p1 + p2 + p3) * 0.20;
+            const Xd = 0.20;
+            const X = Xn / Xd;
+            
+            // Mostrar resultado
+            resultValue.textContent = X.toFixed(3);
+            targetGradeElement.textContent = desiredGrade.toFixed(1);
+            
+            // Actualizar fórmula mostrada
+            formulaDisplay.textContent = `Fórmula aplicada: X = (${desiredGrade.toFixed(1)} - (${q1.toFixed(1)}+${q2.toFixed(1)}+${q3.toFixed(1)}+${q4.toFixed(1)})×0.05 - (${p1.toFixed(1)}+${p2.toFixed(1)}+${p3.toFixed(1)})×0.20) / 0.20`;
+            
+            // Estilizar según el resultado
+            resultValue.classList.remove('high', 'medium', 'low');
+            
+            if (X <= 3.5) {
+                resultValue.classList.add('low');
+                resultMessage.innerHTML = `Para alcanzar una nota final de <span id="targetGrade">${desiredGrade.toFixed(1)}</span> necesitas una nota baja en el cuarto parcial.`;
+            } else if (X <= 4.5) {
+                resultValue.classList.add('medium');
+                resultMessage.innerHTML = `Para alcanzar una nota final de <span id="targetGrade">${desiredGrade.toFixed(1)}</span> necesitas un desempeño moderado en el cuarto parcial.`;
+            } else {
+                resultValue.classList.add('high');
+                resultMessage.innerHTML = `Para alcanzar una nota final de <span id="targetGrade">${desiredGrade.toFixed(1)}</span> necesitas un excelente desempeño en el cuarto parcial.`;
+            }
+            
+            // Mostrar contenedor de resultado
+            resultContainer.style.display = 'block';
+            
+            // Desplazarse al resultado
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Evento para el botón de cálculo
+        calculateBtn.addEventListener('click', calculateRequiredGrade);
+        
+        // Permitir calcular con Enter en cualquier campo
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    calculateRequiredGrade();
+                }
+            });
+        });
+        
+        // Generar datos de ejemplo al cargar la página
+        function generateExampleData() {
+            inputs.q1.value = "4.2";
+            inputs.p1.value = "3.8";
+            inputs.q2.value = "4.5";
+            inputs.p2.value = "4.0";
+            inputs.q3.value = "3.9";
+            inputs.p3.value = "3.5";
+            inputs.q4.value = "4.1";
+        }
+        
+        // Inicializar con datos de ejemplo
+        window.addEventListener('DOMContentLoaded', function() {
+            generateExampleData();
+            
+            // Calcular automáticamente con los datos de ejemplo
+            setTimeout(calculateRequiredGrade, 500);
+        });
+        
+        // Validar entradas (0-5)
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('change', function() {
+                let value = parseFloat(this.value);
+                
+                if (isNaN(value)) {
+                    this.value = '';
+                } else if (value < 0) {
+                    this.value = 0;
+                } else if (value > 5) {
+                    this.value = 5;
+                } else {
+                    this.value = value.toFixed(1);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
