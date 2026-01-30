@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Nota Deseada</title>
+    <title>Calculadora de Nota Deseada con Chuleo</title>
     <style>
         /* Estilos generales */
         * {
@@ -107,6 +107,100 @@
             color: #7f8c8d;
             font-size: 1.1rem;
             max-width: 800px;
+        }
+        
+        /* Sección de chuleo */
+        .chuleo-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .chuleo-title {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chuleo-title span {
+            margin-left: 10px;
+            background-color: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .chuleo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .chuleo-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e1e8ed;
+            transition: all 0.3s;
+        }
+        
+        .chuleo-item:hover {
+            background-color: #e8f4fc;
+            border-color: #3498db;
+        }
+        
+        .chuleo-item input[type="checkbox"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .chuleo-item label {
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .chuleo-percent {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            background-color: #e1e8ed;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        
+        .chuleo-summary {
+            background-color: #f1f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px dashed #3498db;
+        }
+        
+        .chuleo-summary h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .chuleo-summary p {
+            color: #5a6c7d;
+            line-height: 1.5;
+        }
+        
+        .chuleo-summary strong {
+            color: #2c3e50;
         }
         
         /* Secciones */
@@ -235,7 +329,7 @@
         }
         
         .result-value.high {
-            color: #27ae60;
+            color: #e74c3c;
         }
         
         .result-value.medium {
@@ -243,7 +337,12 @@
         }
         
         .result-value.low {
+            color: #27ae60;
+        }
+        
+        .result-value.impossible {
             color: #e74c3c;
+            text-decoration: line-through;
         }
         
         .result-formula {
@@ -251,6 +350,48 @@
             font-style: italic;
             margin-top: 20px;
             font-size: 0.95rem;
+        }
+        
+        .required-grades {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 8px;
+            text-align: left;
+        }
+        
+        .required-grades h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .grade-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+        }
+        
+        .grade-item:last-child {
+            border-bottom: none;
+        }
+        
+        .grade-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .grade-value {
+            font-weight: 700;
+        }
+        
+        .grade-value.required {
+            color: #e74c3c;
+        }
+        
+        .grade-value.optional {
+            color: #f39c12;
         }
         
         /* Información */
@@ -323,6 +464,10 @@
                 flex-direction: column;
                 gap: 0;
             }
+            
+            .chuleo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         
         /* Botón de menú móvil */
@@ -355,6 +500,35 @@
             .sidebar.active {
                 transform: translateX(0);
             }
+            
+            .chuleo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Estado de los campos deshabilitados */
+        input:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .chuleo-item.disabled {
+            opacity: 0.6;
+            background-color: #f0f0f0;
+        }
+        
+        .chuleo-item.disabled label {
+            color: #aaa;
+        }
+        
+        .chuleo-item.checked {
+            background-color: #e8f4fc;
+            border-color: #3498db;
+        }
+        
+        .chuleo-item.checked label {
+            color: #3498db;
         }
     </style>
 </head>
@@ -366,7 +540,7 @@
     <nav class="sidebar" id="sidebar">
         <div class="logo">
             <h2>Calculadora de Notas</h2>
-            <p>Universidad XYZ</p>
+            <p>Con sistema de "chuleo"</p>
         </div>
         <ul class="menu">
             <li class="active"><a href="#calculator"><span class="menu-icon">📊</span> Calculadora</a></li>
@@ -379,17 +553,32 @@
     <!-- Contenido principal -->
     <main class="main-content">
         <header>
-            <h1>Calculadora de Nota Deseada</h1>
-            <p>Calcula la nota que necesitas en el último parcial para alcanzar la calificación deseada, basándote en tus notas actuales de quizzes y parciales.</p>
+            <h1>Calculadora de Nota Deseada con "Chuleo"</h1>
+            <p>Selecciona qué notas ya tienes ("chulealas") y calcula lo que necesitas en las restantes para alcanzar tu objetivo.</p>
         </header>
+        
+        <!-- Sección de Chuleo -->
+        <div class="chuleo-section">
+            <h3 class="chuleo-title">¿Qué notas ya tienes? <span>Chuléalas</span></h3>
+            
+            <div class="chuleo-grid" id="chuleoGrid">
+                <!-- Los elementos de chuleo se generarán con JavaScript -->
+            </div>
+            
+            <div class="chuleo-summary" id="chuleoSummary">
+                <h4>Resumen de selección</h4>
+                <p id="summaryText">No has seleccionado ninguna nota todavía. Selecciona las notas que ya tienes para calcular lo que necesitas en las restantes.</p>
+                <p id="percentageText" style="margin-top: 10px; font-weight: 600;"></p>
+            </div>
+        </div>
         
         <!-- Sección Calculadora -->
         <section id="calculator" class="section active">
-            <h2 class="section-title">Calculadora</h2>
+            <h2 class="section-title">Calculadora de Nota Deseada</h2>
             
             <div class="info-box">
                 <h3>Instrucciones</h3>
-                <p>Introduce las notas de tus quizzes y parciales en las casillas correspondientes. La calculadora determinará la nota que necesitas en el cuarto parcial para alcanzar una calificación final de 3.0.</p>
+                <p>Introduce las notas que ya tienes en las casillas correspondientes. Las casillas de notas que no hayas "chuleado" estarán deshabilitadas. La calculadora determinará lo que necesitas en las evaluaciones restantes para alcanzar tu nota objetivo.</p>
             </div>
             
             <div class="form-row">
@@ -455,33 +644,71 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="desired-grade">Nota deseada final</label>
+                        <label for="desired-grade">Nota final deseada</label>
                         <div class="input-with-info">
                             <input type="number" id="desired-grade" min="0" max="5" step="0.1" value="3.0">
                             <span class="input-info">/ 5.0</span>
                         </div>
                         <small style="color: #7f8c8d;">Puedes cambiar esta nota si deseas otro objetivo</small>
                     </div>
+                    
+                    <div class="form-group">
+                        <label for="p4">Parcial 4 (20%)</label>
+                        <div class="input-with-info">
+                            <input type="number" id="p4" min="0" max="5" step="0.1" placeholder="Calculado automáticamente" disabled>
+                            <span class="input-info">/ 5.0</span>
+                        </div>
+                        <small style="color: #7f8c8d;">Esta nota se calculará automáticamente</small>
+                    </div>
                 </div>
             </div>
             
-            <button class="btn btn-calculate" id="calculateBtn">Calcular Nota Necesaria</button>
+            <button class="btn btn-calculate" id="calculateBtn">Calcular Notas Necesarias</button>
             
             <div id="result" class="result-container" style="display: none;">
-                <h3 class="result-title">Nota necesaria en el cuarto parcial:</h3>
-                <div id="resultValue" class="result-value">0.000</div>
-                <p id="resultMessage">Para alcanzar una nota final de <span id="targetGrade">3.0</span></p>
+                <h3 class="result-title">Resultados del cálculo</h3>
+                
+                <div id="resultSummary" style="margin-bottom: 20px; color: #5a6c7d;">
+                    <!-- Resumen dinámico -->
+                </div>
+                
+                <div id="requiredGrades" class="required-grades">
+                    <h4>Notas necesarias en evaluaciones pendientes</h4>
+                    <div id="gradesList">
+                        <!-- Lista de notas necesarias -->
+                    </div>
+                </div>
+                
+                <div id="finalResult" style="margin-top: 25px;">
+                    <h4>Nota necesaria en el cuarto parcial:</h4>
+                    <div id="resultValue" class="result-value">0.000</div>
+                    <p id="resultMessage">Para alcanzar una nota final de <span id="targetGrade">3.0</span></p>
+                    <p id="impossibleMessage" style="color: #e74c3c; font-weight: 600; display: none; margin-top: 10px;">
+                        ⚠️ Nota: Es imposible alcanzar esta calificación con las notas actuales.
+                    </p>
+                </div>
+                
                 <p class="result-formula" id="formulaDisplay">Fórmula aplicada: X = (3 - (Q1+Q2+Q3+Q4)*0.05 - (P1+P2+P3)*0.20) / 0.20</p>
             </div>
         </section>
         
         <!-- Sección Información -->
         <section id="info" class="section">
-            <h2 class="section-title">Información</h2>
+            <h2 class="section-title">Información sobre el "Chuleo"</h2>
             
             <div class="info-box">
-                <h3>¿Cómo funciona esta calculadora?</h3>
-                <p>Esta herramienta te permite determinar la nota que necesitas obtener en el cuarto parcial para alcanzar una calificación final específica (por defecto 3.0), considerando las notas que ya has obtenido en los quizzes y parciales anteriores.</p>
+                <h3>¿Qué es "chulear" notas?</h3>
+                <p>"Chulear" una nota significa que ya conoces tu calificación en esa evaluación. Al marcar una casilla en la sección de chuleo, estás indicando que ya tienes esa nota y puedes ingresarla en el formulario.</p>
+            </div>
+            
+            <div class="info-box">
+                <h3>¿Cómo funciona el sistema?</h3>
+                <p>El sistema calcula automáticamente lo que necesitas en las evaluaciones que NO has chuleado para alcanzar tu nota objetivo final. Esto te permite:</p>
+                <ul style="margin-left: 20px; margin-top: 10px; color: #5a6c7d; line-height: 1.6;">
+                    <li><strong>Planificar tu estudio</strong>: Saber en qué evaluaciones necesitas enfocarte más</li>
+                    <li><strong>Establecer metas realistas</strong>: Ver si tu objetivo es alcanzable con tus notas actuales</li>
+                    <li><strong>Tomar decisiones</strong>: Decidir si necesitas mejorar en ciertas áreas</li>
+                </ul>
             </div>
             
             <div class="info-box">
@@ -491,62 +718,44 @@
                     <li>Quizzes (4 en total): 5% cada uno (20% en total)</li>
                     <li>Parciales (4 en total): 20% cada uno (80% en total)</li>
                 </ul>
-                <p style="margin-top: 10px;">Nota: La calculadora asume que todos los quizzes y parciales se califican sobre 5.0.</p>
-            </div>
-            
-            <div class="info-box">
-                <h3>Interpretación de resultados</h3>
-                <p>El resultado te indica la nota mínima que necesitas en el cuarto parcial para alcanzar tu objetivo:</p>
-                <ul style="margin-left: 20px; margin-top: 10px; color: #5a6c7d; line-height: 1.6;">
-                    <li><strong>Menos de 5.0</strong>: Es posible alcanzar tu objetivo con un buen desempeño</li>
-                    <li><strong>Exactamente 5.0</strong>: Necesitas la máxima calificación</li>
-                    <li><strong>Más de 5.0</strong>: Tu objetivo no es alcanzable, necesitarías ajustar tu meta</li>
-                </ul>
+                <p style="margin-top: 10px;">Nota: La calculadora asume que todas las evaluaciones se califican sobre 5.0.</p>
             </div>
         </section>
         
         <!-- Sección Fórmula -->
         <section id="formula" class="section">
-            <h2 class="section-title">Fórmula de Cálculo</h2>
+            <h2 class="section-title">Fórmula de Cálculo con Chuleo</h2>
             
             <div class="info-box">
-                <h3>Explicación de la fórmula</h3>
-                <p>La calculadora utiliza la siguiente fórmula para determinar la nota necesaria en el cuarto parcial:</p>
+                <h3>Explicación de la fórmula adaptada</h3>
+                <p>Cuando chuleas algunas notas, la fórmula se adapta para calcular lo que necesitas en las evaluaciones restantes. La fórmula básica sigue siendo la misma, pero solo considera las notas que ya has ingresado (las chuleadas).</p>
             </div>
             
             <div class="formula-box">
-                <p>Xn = N - (Q1 + Q2 + Q3 + Q4) × 0.05 - (P1 + P2 + P3) × 0.20</p>
-                <p>Xd = 0.20</p>
-                <p>X = Xn ÷ Xd</p>
+                <p>Si conoces algunas notas, el cálculo se ajusta así:</p>
+                <p>Nota_objetivo = (N - Σ(notas_conocidas × porcentaje)) / Σ(porcentajes_restantes)</p>
+                <br>
+                <p>Donde:</p>
+                <p>N = Nota final deseada</p>
+                <p>notas_conocidas = Notas que ya has chuleado e ingresado</p>
+                <p>porcentajes_restantes = Suma de porcentajes de evaluaciones no chuleadas</p>
             </div>
             
             <div class="info-box">
-                <h3>Variables</h3>
+                <h3>Ejemplo con chuleo</h3>
+                <p>Supongamos que chuleas los primeros 3 quizzes y los 2 primeros parciales:</p>
                 <ul style="margin-left: 20px; color: #5a6c7d; line-height: 1.8;">
-                    <li><strong>N</strong>: Nota final deseada (por defecto 3.0)</li>
-                    <li><strong>Q1, Q2, Q3, Q4</strong>: Notas de los quizzes (cada uno vale 5%)</li>
-                    <li><strong>P1, P2, P3</strong>: Notas de los parciales 1, 2 y 3 (cada uno vale 20%)</li>
-                    <li><strong>X</strong>: Nota necesaria en el cuarto parcial (resultado)</li>
-                </ul>
-            </div>
-            
-            <div class="info-box">
-                <h3>Ejemplo de cálculo</h3>
-                <p>Supongamos las siguientes notas:</p>
-                <ul style="margin-left: 20px; color: #5a6c7d; line-height: 1.8;">
-                    <li>Quizzes: 4.0, 4.2, 3.8, 4.5</li>
-                    <li>Parciales 1-3: 3.5, 4.0, 3.8</li>
+                    <li>Quizzes chuleados: Q1=4.0, Q2=4.2, Q3=3.8</li>
+                    <li>Parciales chuleados: P1=3.5, P2=4.0</li>
                     <li>Nota deseada: 3.0</li>
                 </ul>
-                <p style="margin-top: 10px;">Cálculo:</p>
-                <div class="formula-box">
-                    <p>Xn = 3.0 - (4.0+4.2+3.8+4.5)×0.05 - (3.5+4.0+3.8)×0.20</p>
-                    <p>Xn = 3.0 - 16.5×0.05 - 11.3×0.20</p>
-                    <p>Xn = 3.0 - 0.825 - 2.26</p>
-                    <p>Xn = -0.085</p>
-                    <p>X = -0.085 ÷ 0.20 = -0.425</p>
-                </div>
-                <p>En este caso, el resultado negativo indica que ya superas la nota objetivo incluso sin presentar el cuarto parcial.</p>
+                <p style="margin-top: 10px;">El sistema calculará lo que necesitas en:</p>
+                <ul style="margin-left: 20px; color: #5a6c7d; line-height: 1.8;">
+                    <li>Quiz 4 (5%)</li>
+                    <li>Parcial 3 (20%)</li>
+                    <li>Parcial 4 (20%)</li>
+                </ul>
+                <p style="margin-top: 10px;">Distribuyendo el esfuerzo necesario entre estas 3 evaluaciones.</p>
             </div>
         </section>
         
@@ -555,8 +764,8 @@
             <h2 class="section-title">Acerca de</h2>
             
             <div class="info-box">
-                <h3>Origen de la calculadora</h3>
-                <p>Esta herramienta está basada en el código Python proporcionado, que calcula la nota necesaria en el cuarto parcial para alcanzar una calificación final de 3.0, considerando las notas obtenidas en evaluaciones previas.</p>
+                <h3>Sistema de "chuleo" de notas</h3>
+                <p>Esta característica única permite a los estudiantes marcar qué evaluaciones ya han completado y conocer sus calificaciones, para luego calcular exactamente lo que necesitan en las evaluaciones restantes para alcanzar sus objetivos académicos.</p>
             </div>
             
             <div class="info-box">
@@ -578,22 +787,17 @@
             </div>
             
             <div class="info-box">
-                <h3>Características de la implementación web</h3>
+                <h3>Características de esta implementación</h3>
                 <p>Esta versión web incluye:</p>
                 <ul style="margin-left: 20px; color: #5a6c7d; line-height: 1.6;">
+                    <li>Sistema de "chuleo" para marcar notas conocidas</li>
+                    <li>Cálculo de lo necesario en evaluaciones pendientes</li>
                     <li>Interfaz gráfica amigable con menú lateral</li>
-                    <li>Validación de entradas</li>
-                    <li>Cálculo instantáneo</li>
-                    <li>Visualización clara del resultado</li>
-                    <li>Explicación detallada de la fórmula</li>
+                    <li>Validación de entradas y cálculo instantáneo</li>
                     <li>Diseño responsivo para dispositivos móviles</li>
                     <li>Posibilidad de cambiar la nota objetivo</li>
+                    <li>Indicadores visuales de dificultad</li>
                 </ul>
-            </div>
-            
-            <div class="info-box">
-                <h3>Uso educativo</h3>
-                <p>Esta herramienta está diseñada con fines educativos para ayudar a los estudiantes a planificar su desempeño académico y entender cómo se calculan las notas finales en función de los porcentajes asignados a cada evaluación.</p>
             </div>
         </section>
     </main>
@@ -610,18 +814,119 @@
         const targetGradeElement = document.getElementById('targetGrade');
         const formulaDisplay = document.getElementById('formulaDisplay');
         const resultMessage = document.getElementById('resultMessage');
+        const impossibleMessage = document.getElementById('impossibleMessage');
+        const resultSummary = document.getElementById('resultSummary');
+        const gradesList = document.getElementById('gradesList');
+        const chuleoGrid = document.getElementById('chuleoGrid');
+        const summaryText = document.getElementById('summaryText');
+        const percentageText = document.getElementById('percentageText');
+        
+        // Datos de las evaluaciones
+        const evaluations = [
+            { id: 'q1', name: 'Quiz 1', percent: 5, value: 0, chuleado: true },
+            { id: 'p1', name: 'Parcial 1', percent: 20, value: 0, chuleado: true },
+            { id: 'q2', name: 'Quiz 2', percent: 5, value: 0, chuleado: true },
+            { id: 'p2', name: 'Parcial 2', percent: 20, value: 0, chuleado: true },
+            { id: 'q3', name: 'Quiz 3', percent: 5, value: 0, chuleado: true },
+            { id: 'p3', name: 'Parcial 3', percent: 20, value: 0, chuleado: true },
+            { id: 'q4', name: 'Quiz 4', percent: 5, value: 0, chuleado: true },
+            { id: 'p4', name: 'Parcial 4', percent: 20, value: 0, chuleado: false }
+        ];
         
         // Datos de entrada
-        const inputs = {
-            q1: document.getElementById('q1'),
-            p1: document.getElementById('p1'),
-            q2: document.getElementById('q2'),
-            p2: document.getElementById('p2'),
-            q3: document.getElementById('q3'),
-            p3: document.getElementById('p3'),
-            q4: document.getElementById('q4'),
-            desiredGrade: document.getElementById('desired-grade')
-        };
+        const inputs = {};
+        evaluations.forEach(eval => {
+            inputs[eval.id] = document.getElementById(eval.id);
+        });
+        inputs['desired-grade'] = document.getElementById('desired-grade');
+        
+        // Inicializar el grid de chuleo
+        function initializeChuleoGrid() {
+            chuleoGrid.innerHTML = '';
+            
+            evaluations.forEach(eval => {
+                if (eval.id === 'p4') return; // No incluimos el parcial 4 en el chuleo
+                
+                const chuleoItem = document.createElement('div');
+                chuleoItem.className = `chuleo-item ${eval.chuleado ? 'checked' : ''}`;
+                chuleoItem.innerHTML = `
+                    <input type="checkbox" id="chk-${eval.id}" ${eval.chuleado ? 'checked' : ''}>
+                    <label for="chk-${eval.id}">${eval.name}</label>
+                    <span class="chuleo-percent">${eval.percent}%</span>
+                `;
+                
+                const checkbox = chuleoItem.querySelector('input');
+                checkbox.addEventListener('change', function() {
+                    toggleChuleo(eval.id, this.checked);
+                });
+                
+                chuleoGrid.appendChild(chuleoItem);
+            });
+            
+            updateChuleoSummary();
+        }
+        
+        // Alternar chuleo de una evaluación
+        function toggleChuleo(id, checked) {
+            const evaluation = evaluations.find(e => e.id === id);
+            if (evaluation) {
+                evaluation.chuleado = checked;
+                
+                // Actualizar estado del input correspondiente
+                const input = inputs[id];
+                if (input) {
+                    input.disabled = !checked;
+                    if (!checked) {
+                        input.value = '';
+                    }
+                }
+                
+                // Actualizar UI
+                updateChuleoUI();
+                updateChuleoSummary();
+            }
+        }
+        
+        // Actualizar UI del chuleo
+        function updateChuleoUI() {
+            const chuleoItems = document.querySelectorAll('.chuleo-item');
+            chuleoItems.forEach(item => {
+                const checkbox = item.querySelector('input');
+                const id = checkbox.id.replace('chk-', '');
+                const evaluation = evaluations.find(e => e.id === id);
+                
+                if (evaluation) {
+                    if (evaluation.chuleado) {
+                        item.classList.add('checked');
+                        item.classList.remove('disabled');
+                        checkbox.checked = true;
+                    } else {
+                        item.classList.remove('checked');
+                        item.classList.add('disabled');
+                        checkbox.checked = false;
+                    }
+                }
+            });
+        }
+        
+        // Actualizar resumen del chuleo
+        function updateChuleoSummary() {
+            const chuleadas = evaluations.filter(e => e.chuleado && e.id !== 'p4');
+            const noChuleadas = evaluations.filter(e => !e.chuleado && e.id !== 'p4');
+            
+            const percentChuleadas = chuleadas.reduce((sum, eval) => sum + eval.percent, 0);
+            const percentNoChuleadas = noChuleadas.reduce((sum, eval) => sum + eval.percent, 0) + 20; // +20% del parcial 4
+            
+            if (chuleadas.length === 0) {
+                summaryText.innerHTML = 'No has seleccionado ninguna nota todavía. <strong>Selecciona las notas que ya tienes</strong> para calcular lo que necesitas en las restantes.';
+                percentageText.textContent = '';
+            } else {
+                summaryText.innerHTML = `Has chuleado <strong>${chuleadas.length} evaluación(es)</strong>: ${chuleadas.map(e => e.name).join(', ')}. `;
+                summaryText.innerHTML += `Falta por ingresar <strong>${noChuleadas.length} evaluación(es)</strong>${noChuleadas.length > 0 ? ': ' + noChuleadas.map(e => e.name).join(', ') : ''} y el Parcial 4.`;
+                
+                percentageText.innerHTML = `Porcentaje chuleado: <strong>${percentChuleadas}%</strong> | Porcentaje pendiente: <strong>${percentNoChuleadas}%</strong>`;
+            }
+        }
         
         // Navegación del menú
         menuItems.forEach(item => {
@@ -666,43 +971,117 @@
             }
         });
         
-        // Función para calcular la nota necesaria
-        function calculateRequiredGrade() {
+        // Función para calcular lo que se necesita en evaluaciones no chuleadas
+        function calculateRequiredGrades() {
             // Obtener valores de entrada
-            const q1 = parseFloat(inputs.q1.value) || 0;
-            const p1 = parseFloat(inputs.p1.value) || 0;
-            const q2 = parseFloat(inputs.q2.value) || 0;
-            const p2 = parseFloat(inputs.p2.value) || 0;
-            const q3 = parseFloat(inputs.q3.value) || 0;
-            const p3 = parseFloat(inputs.p3.value) || 0;
-            const q4 = parseFloat(inputs.q4.value) || 0;
-            const desiredGrade = parseFloat(inputs.desiredGrade.value) || 3.0;
+            evaluations.forEach(eval => {
+                if (eval.id !== 'p4') {
+                    const input = inputs[eval.id];
+                    eval.value = parseFloat(input.value) || 0;
+                }
+            });
             
-            // Calcular según la fórmula original
-            const Xn = desiredGrade - (q1 + q2 + q3 + q4) * 0.05 - (p1 + p2 + p3) * 0.20;
+            const desiredGrade = parseFloat(inputs['desired-grade'].value) || 3.0;
+            
+            // Separar evaluaciones chuleadas y no chuleadas (excluyendo p4)
+            const chuleadas = evaluations.filter(e => e.chuleado && e.id !== 'p4');
+            const noChuleadas = evaluations.filter(e => !e.chuleado && e.id !== 'p4');
+            
+            // Calcular puntos obtenidos de evaluaciones chuleadas
+            let puntosObtenidos = 0;
+            chuleadas.forEach(eval => {
+                puntosObtenidos += (eval.value / 5) * eval.percent;
+            });
+            
+            // Calcular puntos necesarios para alcanzar la nota deseada
+            const puntosNecesariosTotal = (desiredGrade / 5) * 100;
+            const puntosFaltantes = puntosNecesariosTotal - puntosObtenidos;
+            
+            // Calcular porcentaje total de evaluaciones no chuleadas (incluyendo p4)
+            const porcentajeNoChuleadas = noChuleadas.reduce((sum, eval) => sum + eval.percent, 0) + 20; // +20% del parcial 4
+            
+            // Calcular la nota promedio necesaria en evaluaciones no chuleadas
+            const notaPromedioNecesaria = (puntosFaltantes / porcentajeNoChuleadas) * 5;
+            
+            // Verificar si es posible alcanzar la nota
+            const esPosible = notaPromedioNecesaria <= 5;
+            
+            // Calcular la nota necesaria en el parcial 4 usando la fórmula original
+            const Xn = desiredGrade - (inputs.q1.value + inputs.q2.value + inputs.q3.value + inputs.q4.value) * 0.05 - 
+                       (inputs.p1.value + inputs.p2.value + inputs.p3.value) * 0.20;
             const Xd = 0.20;
             const X = Xn / Xd;
             
-            // Mostrar resultado
-            resultValue.textContent = X.toFixed(3);
+            // Mostrar resultados
+            displayResults(chuleadas, noChuleadas, esPosible, notaPromedioNecesaria, X, desiredGrade);
+        }
+        
+        // Mostrar resultados
+        function displayResults(chuleadas, noChuleadas, esPosible, notaPromedioNecesaria, notaP4, desiredGrade) {
+            // Actualizar resumen
+            resultSummary.innerHTML = `
+                <p>Has ingresado <strong>${chuleadas.length} evaluación(es)</strong> con un total del <strong>${chuleadas.reduce((sum, e) => sum + e.percent, 0)}%</strong> de la nota final.</p>
+                <p>Faltan por completar <strong>${noChuleadas.length} evaluación(es)</strong> y el Parcial 4, que representan el <strong>${noChuleadas.reduce((sum, e) => sum + e.percent, 0) + 20}%</strong> de la nota final.</p>
+            `;
+            
+            // Mostrar lista de notas necesarias
+            gradesList.innerHTML = '';
+            
+            // Para evaluaciones no chuleadas
+            noChuleadas.forEach(eval => {
+                const gradeItem = document.createElement('div');
+                gradeItem.className = 'grade-item';
+                gradeItem.innerHTML = `
+                    <span class="grade-name">${eval.name} (${eval.percent}%):</span>
+                    <span class="grade-value required">${notaPromedioNecesaria.toFixed(2)} / 5.0</span>
+                `;
+                gradesList.appendChild(gradeItem);
+            });
+            
+            // Para el parcial 4 (siempre se muestra)
+            const gradeItemP4 = document.createElement('div');
+            gradeItemP4.className = 'grade-item';
+            gradeItemP4.innerHTML = `
+                <span class="grade-name">Parcial 4 (20%):</span>
+                <span class="grade-value ${esPosible ? 'required' : 'impossible'}">${notaP4.toFixed(3)} / 5.0</span>
+            `;
+            gradesList.appendChild(gradeItemP4);
+            
+            // Mostrar resultado principal
+            resultValue.textContent = notaP4.toFixed(3);
             targetGradeElement.textContent = desiredGrade.toFixed(1);
             
-            // Actualizar fórmula mostrada
-            formulaDisplay.textContent = `Fórmula aplicada: X = (${desiredGrade.toFixed(1)} - (${q1.toFixed(1)}+${q2.toFixed(1)}+${q3.toFixed(1)}+${q4.toFixed(1)})×0.05 - (${p1.toFixed(1)}+${p2.toFixed(1)}+${p3.toFixed(1)})×0.20) / 0.20`;
-            
             // Estilizar según el resultado
-            resultValue.classList.remove('high', 'medium', 'low');
+            resultValue.classList.remove('high', 'medium', 'low', 'impossible');
             
-            if (X <= 3.5) {
+            if (!esPosible || notaP4 > 5) {
+                resultValue.classList.add('impossible');
+                impossibleMessage.style.display = 'block';
+                resultMessage.innerHTML = `Para alcanzar una nota final de <span id="targetGrade">${desiredGrade.toFixed(1)}</span> necesitarías más de 5.0 en el cuarto parcial, lo cual es imposible.`;
+            } else if (notaP4 <= 3.0) {
                 resultValue.classList.add('low');
+                impossibleMessage.style.display = 'none';
                 resultMessage.innerHTML = `Para alcanzar una nota final de <span id="targetGrade">${desiredGrade.toFixed(1)}</span> necesitas una nota baja en el cuarto parcial.`;
-            } else if (X <= 4.5) {
+            } else if (notaP4 <= 4.0) {
                 resultValue.classList.add('medium');
+                impossibleMessage.style.display = 'none';
                 resultMessage.innerHTML = `Para alcanzar una nota final de <span id="targetGrade">${desiredGrade.toFixed(1)}</span> necesitas un desempeño moderado en el cuarto parcial.`;
             } else {
                 resultValue.classList.add('high');
+                impossibleMessage.style.display = 'none';
                 resultMessage.innerHTML = `Para alcanzar una nota final de <span id="targetGrade">${desiredGrade.toFixed(1)}</span> necesitas un excelente desempeño en el cuarto parcial.`;
             }
+            
+            // Actualizar fórmula mostrada
+            const q1 = parseFloat(inputs.q1.value) || 0;
+            const q2 = parseFloat(inputs.q2.value) || 0;
+            const q3 = parseFloat(inputs.q3.value) || 0;
+            const q4 = parseFloat(inputs.q4.value) || 0;
+            const p1 = parseFloat(inputs.p1.value) || 0;
+            const p2 = parseFloat(inputs.p2.value) || 0;
+            const p3 = parseFloat(inputs.p3.value) || 0;
+            
+            formulaDisplay.textContent = `Fórmula aplicada: X = (${desiredGrade.toFixed(1)} - (${q1.toFixed(1)}+${q2.toFixed(1)}+${q3.toFixed(1)}+${q4.toFixed(1)})×0.05 - (${p1.toFixed(1)}+${p2.toFixed(1)}+${p3.toFixed(1)})×0.20) / 0.20`;
             
             // Mostrar contenedor de resultado
             resultContainer.style.display = 'block';
@@ -712,51 +1091,91 @@
         }
         
         // Evento para el botón de cálculo
-        calculateBtn.addEventListener('click', calculateRequiredGrade);
+        calculateBtn.addEventListener('click', calculateRequiredGrades);
         
         // Permitir calcular con Enter en cualquier campo
         Object.values(inputs).forEach(input => {
-            input.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    calculateRequiredGrade();
-                }
-            });
+            if (input) {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        calculateRequiredGrades();
+                    }
+                });
+            }
         });
         
         // Generar datos de ejemplo al cargar la página
         function generateExampleData() {
-            inputs.q1.value = "4.2";
-            inputs.p1.value = "3.8";
-            inputs.q2.value = "4.5";
-            inputs.p2.value = "4.0";
-            inputs.q3.value = "3.9";
-            inputs.p3.value = "3.5";
-            inputs.q4.value = "4.1";
+            // Valores de ejemplo
+            const exampleValues = {
+                q1: 4.2,
+                p1: 3.8,
+                q2: 4.5,
+                p2: 4.0,
+                q3: 3.9,
+                p3: 3.5,
+                q4: 4.1
+            };
+            
+            // Establecer valores de ejemplo solo para evaluaciones chuleadas
+            evaluations.forEach(eval => {
+                if (eval.chuleado && exampleValues[eval.id] !== undefined) {
+                    inputs[eval.id].value = exampleValues[eval.id];
+                    eval.value = exampleValues[eval.id];
+                }
+            });
+            
+            // Desmarcar algunas evaluaciones para demostrar el chuleo
+            setTimeout(() => {
+                toggleChuleo('q3', false);
+                toggleChuleo('p3', false);
+            }, 100);
         }
         
-        // Inicializar con datos de ejemplo
+        // Inicializar la aplicación
         window.addEventListener('DOMContentLoaded', function() {
+            // Inicializar grid de chuleo
+            initializeChuleoGrid();
+            
+            // Inicializar inputs
+            evaluations.forEach(eval => {
+                if (eval.id !== 'p4') {
+                    const input = inputs[eval.id];
+                    input.disabled = !eval.chuleado;
+                }
+            });
+            
+            // Generar datos de ejemplo
             generateExampleData();
             
             // Calcular automáticamente con los datos de ejemplo
-            setTimeout(calculateRequiredGrade, 500);
+            setTimeout(calculateRequiredGrades, 500);
         });
         
         // Validar entradas (0-5)
         Object.values(inputs).forEach(input => {
-            input.addEventListener('change', function() {
-                let value = parseFloat(this.value);
-                
-                if (isNaN(value)) {
-                    this.value = '';
-                } else if (value < 0) {
-                    this.value = 0;
-                } else if (value > 5) {
-                    this.value = 5;
-                } else {
-                    this.value = value.toFixed(1);
-                }
-            });
+            if (input) {
+                input.addEventListener('change', function() {
+                    let value = parseFloat(this.value);
+                    
+                    if (isNaN(value)) {
+                        this.value = '';
+                    } else if (value < 0) {
+                        this.value = 0;
+                    } else if (value > 5) {
+                        this.value = 5;
+                    } else {
+                        this.value = value.toFixed(1);
+                    }
+                    
+                    // Actualizar el valor en el array de evaluaciones
+                    const id = this.id;
+                    const evaluation = evaluations.find(e => e.id === id);
+                    if (evaluation) {
+                        evaluation.value = parseFloat(this.value) || 0;
+                    }
+                });
+            }
         });
     </script>
 </body>
